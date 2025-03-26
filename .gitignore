@@ -1,0 +1,7 @@
+/output
+/output_lidar
+/output_parking_lot
+/src/lidar_scan.ply
+/src/output
+/src/pcds
+/src/src/pcds/basemap.pcd
