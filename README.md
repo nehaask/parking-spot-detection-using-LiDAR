@@ -1,2 +1,2 @@
 # parking-spot-detection
-Capstone - 
+Capstone 
