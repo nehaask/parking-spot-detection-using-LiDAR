@@ -230,6 +230,13 @@ def main(arg):
         spectator.set_transform(route_points[0]) 
         # spectator.set_transform(carla.Transform(vehicle.location , vehicle.rotation)) #+ vehicle.location(20,0,10)
 
+        transform = spectator.get_transform()
+        location = transform.location
+        rotation = transform.rotation
+        print(f"Spectator Location: x={location.x}, y={location.y}, z={location.z}")
+        print(f"Spectator Rotation: pitch={rotation.pitch}, yaw={rotation.yaw}, roll={rotation.roll}")
+
+
         current_frame = 1
         end = arg.t * arg.fps
 
