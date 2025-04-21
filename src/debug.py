@@ -1,58 +1,50 @@
-# Let's generate a Python function that would allow the user to create a heatmap-style debug visualization
-# for the obstacle points and detected clusters. This visualization can help in tuning DBSCAN and debugging.
+import carla
+import random
 
-# We'll create a simple matplotlib plot to show:
-# - All obstacle points (e.g., small gray dots)
-# - Clustered points (different colors)
-# - Cluster centroids (large red dots)
-# - Parking spots (as boxes)
+# Step 1: Define parking spots
+parking_spots = [
+    {'id': 10, 'polygon': [(1, -31), (6, -31), (6, -29), (1, -29)], 'occupied': False},
+    {'id': 5,  'polygon': [(8, -31), (13, -31), (13, -29), (8, -29)], 'occupied': False},
+    {'id': 9,  'polygon': [(1, -28), (6, -28), (6, -26), (1, -26)], 'occupied': False},
+    {'id': 8,  'polygon': [(1, -25), (6, -25), (6, -23), (1, -23)], 'occupied': False},
+    {'id': 7,  'polygon': [(1, -23), (6, -23), (6, -20), (1, -20)], 'occupied': False},
+    {'id': 6,  'polygon': [(1, -20), (6, -20), (6, -18), (1, -18)], 'occupied': False},
+    {'id': 4,  'polygon': [(8, -28), (13, -28), (13, -26), (8, -26)], 'occupied': False},
+    {'id': 3,  'polygon': [(8, -25), (13, -25), (13, -23), (8, -23)], 'occupied': False},
+    {'id': 2,  'polygon': [(8, -23), (13, -23), (13, -21), (8, -21)], 'occupied': False},
+    {'id': 1,  'polygon': [(8, -20), (13, -20), (13, -18), (8, -18)], 'occupied': False}
+]
 
-import matplotlib.pyplot as plt
-import matplotlib.patches as patches
-import numpy as np
-from sklearn.cluster import DBSCAN
+# Step 2: Connect to CARLA
+client = carla.Client('localhost', 2000)
+client.set_timeout(5.0)
+world = client.get_world()
 
-def generate_debug_heatmap(obstacle_points, parking_spots, eps=2.0, min_samples=100):
-    X = np.array(obstacle_points)
-    clustering = DBSCAN(eps=eps, min_samples=min_samples).fit(X)
-    
-    # Create the plot
-    fig, ax = plt.subplots(figsize=(10, 8))
+# Step 3: Choose an unoccupied spot
+available_spots = [spot for spot in parking_spots if not spot['occupied']]
+spot = random.choice(available_spots)
 
-    # Plot all points as gray
-    ax.scatter(X[:, 0], X[:, 1], s=5, c='gray', label='Obstacle Points', alpha=0.4)
+# Step 4: Compute center of the polygon
+poly = spot['polygon']
+center_x = sum(p[0] for p in poly) / len(poly)
+center_y = sum(p[1] for p in poly) / len(poly)
 
-    # Plot each cluster in a different color
-    labels = set(clustering.labels_)
-    colors = plt.cm.get_cmap("tab10", len(labels))
+# Set z to a reasonable height above the ground
+spawn_location = carla.Location(x=center_x, y=center_y, z=0.5)
 
-    for label in labels:
-        if label == -1:
-            continue  # noise
-        cluster_points = X[clustering.labels_ == label]
-        centroid = np.mean(cluster_points, axis=0)
-        ax.scatter(cluster_points[:, 0], cluster_points[:, 1], s=10, label=f'Cluster {label}')
-        ax.scatter(*centroid, color='red', s=100, edgecolor='black', label='Centroid' if label == 0 else "")
+# Face the car toward the road (adjust yaw based on orientation of parking slot)
+spawn_rotation = carla.Rotation(pitch=0.0, yaw=180.0, roll=0.0)  # or 0.0 / 90.0 etc. as needed
+spawn_transform = carla.Transform(spawn_location, spawn_rotation)
 
-    # Plot parking spots
-    for spot in parking_spots:
-        poly = np.array(spot["polygon"])
-        rect = patches.Polygon(poly, closed=True,
-                               linewidth=2,
-                               edgecolor='green' if not spot['occupied'] else 'red',
-                               facecolor='none')
-        ax.add_patch(rect)
-        cx, cy = np.mean(poly, axis=0)
-        ax.text(cx, cy, f"ID {spot['id']}", ha='center', va='center', fontsize=8, color='black')
+# Step 5: Choose vehicle blueprint
+blueprint_library = world.get_blueprint_library()
+vehicle_bp = blueprint_library.filter('vehicle.*model3')[0]  # Tesla Model 3, for example
 
-    ax.set_title("Obstacle Points, Clusters, and Parking Spots")
-    ax.set_xlabel("X (world coords)")
-    ax.set_ylabel("Y (world coords)")
-    ax.legend()
-    plt.grid(True)
-    plt.tight_layout()
-    plt.show()
+# Step 6: Spawn vehicle
+vehicle = world.try_spawn_actor(vehicle_bp, spawn_transform)
 
-# Dummy call example (would need to be replaced with real data during runtime)
-generate_debug_heatmap(obstacle_points, PARKING_SPOTS)
-
+if vehicle:
+    print(f"Vehicle spawned at spot ID {spot['id']}!")
+    spot['occupied'] = True
+else:
+    print("Failed to spawn vehicle.")
