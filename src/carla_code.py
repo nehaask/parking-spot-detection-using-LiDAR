@@ -160,7 +160,7 @@ class ParkingMonitor:
             X = np.array(obstacle_points)
             
             # Tighter clustering parameters
-            clustering = DBSCAN(eps=2.0, min_samples=100).fit(X)  # Reduced eps and min_samples
+            clustering = DBSCAN(eps=1.5, min_samples=100).fit(X)  # Reduced eps and min_samples
 
             for label in set(clustering.labels_):
                 if label == -1:
@@ -174,7 +174,6 @@ class ParkingMonitor:
                 
                 centroids.append(centroid)
                 cluster_radii.append(max_distance)
-                
 
                 # Draw cluster center with radius
                 self.debug.draw_point(
@@ -184,14 +183,14 @@ class ParkingMonitor:
                     life_time=0.5
                 )
                 
-                # Draw cluster boundary circle
-                self.debug.draw_line(
-                    carla.Location(x=centroid[0], y=centroid[1], z=1.0),
-                    carla.Location(x=centroid[0]+max_distance, y=centroid[1], z=1.0),
-                    thickness=0.1,
-                    color=carla.Color(255, 165, 0),  # Orange
-                    life_time=0.5
-                )
+                # # Draw cluster boundary circle
+                # self.debug.draw_line(
+                #     carla.Location(x=centroid[0], y=centroid[1], z=1.0),
+                #     carla.Location(x=centroid[0]+max_distance, y=centroid[1], z=1.0),
+                #     thickness=0.1,
+                #     color=carla.Color(255, 165, 0),  # Orange
+                #     life_time=0.5
+                # )
                 
                 # # Add text label with coordinates
                 # self.debug.draw_string(
