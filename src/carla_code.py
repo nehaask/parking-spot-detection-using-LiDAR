@@ -13,6 +13,7 @@ import math
 import numpy as np
 from sklearn.cluster import DBSCAN
 import carla
+import matplotlib.pyplot as plt
 
 # CARLA PythonAPI setup
 try:
@@ -136,7 +137,7 @@ class ParkingMonitor:
                     life_time=0.5     # Duration to keep line visible (seconds)
                 )
 
-    def semantic_lidar_callback_old(self, point_cloud):
+    def semantic_lidar_callback(self, point_cloud):
         """Process LiDAR data and update parking spot status"""
         # Get current vehicle transform for coordinate conversion
         vehicle_transform = self.vehicle.get_transform()
@@ -151,6 +152,8 @@ class ParkingMonitor:
                 world_point = vehicle_transform.transform(
                     carla.Location(local_point.x, local_point.y, local_point.z))
                 obstacle_points.append([world_point.x, world_point.y])
+
+        self.generate_debug_heatmap(obstacle_points, PARKING_SPOTS)
 
         # Cluster obstacles using DBSCAN algorithm
         centroids = []
