@@ -133,10 +133,10 @@ class ParkingMonitor:
                     points[i], points[(i+1)%len(points)],
                     thickness=0.2,    # Line thickness in meters
                     color=color,      # Color based on occupancy
-                    life_time=0.1     # Duration to keep line visible (seconds)
+                    life_time=0.5     # Duration to keep line visible (seconds)
                 )
 
-    def semantic_lidar_callback(self, point_cloud):
+    def semantic_lidar_callback_old(self, point_cloud):
         """Process LiDAR data and update parking spot status"""
         # Get current vehicle transform for coordinate conversion
         vehicle_transform = self.vehicle.get_transform()
@@ -173,20 +173,66 @@ class ParkingMonitor:
                         size=0.05,  # Point size in meters
                         color=carla.Color(215, 195, 0),  # Orange color
                         life_time=0.5  # Duration to keep point visible
-                    )
-
-        # Update parking spot occupancy status
-        for spot in PARKING_SPOTS:
-            spot["occupied"] = False
-            for centroid in centroids:
-                if self.point_in_polygon(centroid, spot["polygon"]):
-                    spot["occupied"] = True
-                    break  # No need to check other centroids for this spot
+                                )
+            for spot in PARKING_SPOTS:
+                spot["occupied"] = False  # Reset status
+                for centroid in centroids:
+                    if self.point_in_polygon(centroid, spot["polygon"]):
+                        spot["occupied"] = True
+                        break  # Exit early if any centroid found
 
         # Console output of current status
         free_spots = [s["id"] for s in PARKING_SPOTS if not s["occupied"]]
         print(f"\n[{time.strftime('%H:%M:%S')}] Free spots: {free_spots}")
 
+    def semantic_lidar_callback(self, point_cloud):
+        """Process LiDAR data and update parking spot status"""
+        vehicle_transform = self.vehicle.get_transform()
+        obstacle_points = []
+
+        # Step 1: Convert semantic LiDAR points to world coordinates (filter out ground)
+        for detection in point_cloud:
+            if detection.object_tag != OBJECT_IDS["Ground"]:
+                local_point = detection.point
+                world_point = vehicle_transform.transform(
+                    carla.Location(local_point.x, local_point.y, local_point.z)
+                )
+                obstacle_points.append([world_point.x, world_point.y])
+
+        # Step 2: Cluster using DBSCAN
+        centroids = []
+        if obstacle_points:
+            X = np.array(obstacle_points)
+            clustering = DBSCAN(eps=2.0, min_samples=100).fit(X)
+
+            for label in set(clustering.labels_):
+                if label == -1:
+                    continue  # skip noise
+                cluster_points = X[clustering.labels_ == label]
+                centroid = np.mean(cluster_points, axis=0)
+                centroids.append(centroid)
+
+                # Optional: visualize centroid in CARLA
+                self.debug.draw_point(
+                    carla.Location(x=centroid[0], y=centroid[1], z=1.0),
+                    size=0.05,
+                    color=carla.Color(215, 195, 0),  # yellow-orange
+                    life_time=0.5
+                )
+
+        # Step 3: Update parking spot status
+        for spot in PARKING_SPOTS:
+            spot["occupied"] = False
+            for centroid in centroids:
+                if self.point_in_polygon(centroid, spot["polygon"]):
+                    spot["occupied"] = True
+                    break
+
+        # Debug print
+        free_spots = [s["id"] for s in PARKING_SPOTS if not s["occupied"]]
+        print(f"[{time.strftime('%H:%M:%S')}] Free spots: {free_spots}")
+
+    
     def setup_lidar(self):
         """Configure and attach semantic LiDAR sensor to vehicle"""
         blueprint_lib = self.world.get_blueprint_library()
