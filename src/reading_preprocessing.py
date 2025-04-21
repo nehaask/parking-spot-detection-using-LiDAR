@@ -18,7 +18,7 @@ OBJECT_IDS = {
 }
 
 # Path to your .asc file
-asc_path = "/home/nk4349/Desktop/Carla/PythonAPI/examples/parking-spot-detection/Test_segmentation/basemap_txt.asc"
+asc_path = "/Users/nehask/Desktop/capstone/parking-spot-detection/annotations/basemap_10_annotated.asc"
 
 import csv
 from collections import defaultdict
