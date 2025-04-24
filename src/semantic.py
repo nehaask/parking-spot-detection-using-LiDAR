@@ -292,8 +292,6 @@ def main(arg):
             file2.close()
 
             if current_frame==end:
-
-
                 if (arg.basemap):
                     print("saving basemamp")
                     filename =  args.output +'/basemap.pcd'

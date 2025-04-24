@@ -20,7 +20,7 @@ def accumulate_point_clouds(file_list):
 pcd_files = sorted(input_dir.glob("*.pcd"), key=lambda x: int(x.stem))
 
 # Process in chunks of 10
-chunk_size = 100
+chunk_size = 10
 for i in range(0, len(pcd_files), chunk_size):
     chunk = pcd_files[i:i+chunk_size]
     print(f"Processing frames: {chunk[0].name} to {chunk[-1].name}")

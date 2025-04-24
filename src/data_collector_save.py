@@ -4,8 +4,6 @@ import numpy as np
 import os
 import time
 from queue import Queue
-from sklearn.cluster import DBSCAN
-from shapely.geometry import Point, Polygon
 
 PARKING_SPOTS = [
     {'id': 10, 
@@ -212,6 +210,11 @@ def main():
                 points_all.clear()
                 object_id_all.clear()
                 object_tag_all.clear()
+
+                # → Place any computation you want to do on this batch here
+                # e.g., collision checks, object tracking, etc.
+                # plot the parking spaces annotated in the point cloud
+
 
             if current_frame == end:
                 world.apply_settings(original_settings)
