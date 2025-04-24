@@ -82,7 +82,7 @@ def main():
     # Configuration parameters
     # PCD_FILE = "/home/nk4349/Desktop/Carla/PythonAPI/examples/parking-spot-detection/Test_segmentation/basemap_parking_lot.pcd"
     # PCD_FILE = "/home/nk4349/Desktop/Carla/PythonAPI/examples/parking-spot-detection/src/outputs/basemap_30.pcd"
-    PCD_FILE = "/home/nk4349/Desktop/Carla/PythonAPI/examples/parking-spot-detection/src/filtered_output_new.pcd"
+    PCD_FILE = "/home/nk4349/Desktop/Carla/PythonAPI/examples/parking-spot-detection/src/filtered_basemap.pcd"
     ANNOTATION_COLOR = [1, 0, 0]  # RGB for annotation markers (normalized 0-1)
     CLUSTER_EPS = 1             # DBSCAN distance threshold
     MIN_CLUSTER_POINTS = 300      # Minimum points per cluster

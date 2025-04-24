@@ -4,8 +4,6 @@ import numpy as np
 import os
 import time
 from queue import Queue
-from sklearn.cluster import DBSCAN
-from shapely.geometry import Point, Polygon
 
 PARKING_SPOTS = [
     {'id': 10, 
@@ -81,14 +79,7 @@ def semantic_lidar_callback(world, data):
 
     # Construct the points array
     points = np.array([x, y, z]).T
-    # point_cloud = np.reshape(point_cloud, (int(point_cloud.shape[0] / 6), 6))
-
     lidar_queue.put((data.frame, points, ObjIdx, ObjTag, data.transform, timestamp_seconds))
-
-
-    # x, y, z = point_cloud['x'], point_cloud['y'], point_cloud['z']
-    # points = np.array([x, y, z]).T
-    # lidar_queue.put(points)
 
 def main():
     output_dir = "output/pcds"
@@ -113,11 +104,6 @@ def main():
     spawn_point = carla.Transform(carla.Location(x=15, y=-30, z=0.5), carla.Rotation(yaw=90))
     vehicle = world.spawn_actor(vehicle_bp, spawn_point)
     actor_list.append(vehicle)
-
-    # vehicle1 = world.spawn_actor(vehicle_bp, spawn_point1)
-    # actor_list.append(vehicle1)
-    # vehicle2 = world.spawn_actor(vehicle_bp, spawn_point2)
-    # actor_list.extend([vehicle1, vehicle2])
 
     # Configure spectator camera
     spectator = world.get_spectator()
@@ -177,7 +163,6 @@ def main():
             points_t = np.dot(transform.get_matrix(), points_t.T).T[:, :-1]
 
             # Accumulate for basemap every 10 frames
-
             points_all.append(points_t)
             object_id_all.append(object_id)
             object_tag_all.append(object_tag)
