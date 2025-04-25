@@ -1,30 +1,11 @@
 import open3d as o3d
 
-# Load the point cloud using Open3D's tensor-based API
-# pcd = o3d.t.io.read_point_cloud("/home/nk4349/Desktop/Carla/PythonAPI/examples/parking-spot-detection/Test_segmentation/basemap_txt.asc")
-
-# The point attributes are stored in a dictionary
-# print(pcd)
-# print(list(pcd.point["spot"]))
-
-# print("Available point fields:")
-# for key in pcd.point.attribute_names:
-#     print(f"- {key}: shape={pcd.point[key].shape}, dtype={pcd.point[key].dtype}")
-
-OBJECT_IDS = {
-    "Ground": 0,
-    "ParkingSpace": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],  # Example
-    "Vehicle": 25
-}
-
 # Path to your .asc file
 asc_path = "/Users/nehask/Desktop/capstone/parking-spot-detection/annotations/basemap_10_annotated.asc"
 
 import csv
 from collections import defaultdict
 
-
-# Group (x, y) points by `spot`
 spot_points = defaultdict(list)
 
 with open(asc_path, "r") as f:
@@ -62,9 +43,9 @@ for spot_id, points in spot_points.items():
     ]
 
     PARKING_SPOTS.append({
-        "id": spot_id,
-        "polygon": polygon,
-        "occupied": False     # Since points exist for this spot
+        "id": spot_id, # Unique identifier for the parking spot
+        "polygon": polygon, # List of tuples representing the corners of the bounding box
+        "occupied": False # Placeholder for occupancy status
     })
 
 

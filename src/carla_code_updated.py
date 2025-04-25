@@ -1,78 +1,3 @@
-
-import numpy as np
-from sklearn.cluster import DBSCAN
-from shapely.geometry import Point, Polygon
-import matplotlib.pyplot as plt
-import os
-
-class ParkingSpotDetector:
-    def __init__(self, base_map_polygons, output_dir="outputs"):
-        self.base_map = base_map_polygons
-        self.cluster_eps = 2.0
-        self.min_samples = 8
-        self.output_dir = output_dir
-        os.makedirs(self.output_dir, exist_ok=True)
-        self.frame_counter = 0
-
-    def filter_ground_points(self, point_cloud):
-        return point_cloud[point_cloud[:, 2] > 0.2]
-
-    def cluster_obstacles(self, filtered_points):
-        dbscan = DBSCAN(eps=self.cluster_eps, min_samples=self.min_samples)
-        labels = dbscan.fit_predict(filtered_points[:, :2])
-        centroids = []
-
-        for label in np.unique(labels):
-            if label == -1:
-                continue
-            cluster = filtered_points[labels == label]
-            centroid = np.mean(cluster[:, :2], axis=0)
-            centroids.append(centroid)
-
-        return np.array(centroids)
-
-    def classify_parking_spots(self, centroids):
-        for spot in self.base_map:
-            polygon = Polygon(spot["polygon"])
-            spot["occupied"] = any(polygon.contains(Point(c[0], c[1])) for c in centroids)
-        return self.base_map
-
-    def run(self, raw_points):
-        filtered = self.filter_ground_points(raw_points)
-        centroids = self.cluster_obstacles(filtered)
-        self.classify_parking_spots(centroids)
-        self.frame_counter += 1
-        if self.frame_counter % 10 == 0:  # Save every 10 frames
-            self.save_visualization(raw_points, centroids)
-        return self.base_map
-
-    def save_visualization(self, raw_points, centroids):
-        fig, ax = plt.subplots(figsize=(8, 8))
-        if raw_points is not None and len(raw_points) > 0:
-            ax.scatter(raw_points[:, 0], raw_points[:, 1], color='gray', s=5, alpha=0.3, label='LiDAR Points')
-
-        for spot in self.base_map:
-            polygon = np.array(spot["polygon"])
-            color = 'red' if spot["occupied"] else 'green'
-            ax.fill(polygon[:, 0], polygon[:, 1], alpha=0.4, color=color)
-            ax.plot(polygon[:, 0], polygon[:, 1], 'k--', linewidth=0.5)
-
-        if centroids is not None and len(centroids) > 0:
-            ax.scatter(centroids[:, 0], centroids[:, 1], color='blue', s=40, label='Centroids')
-
-        ax.set_xlim(80, 110)
-        ax.set_ylim(120, 140)
-        ax.set_aspect("equal")
-        ax.set_title(f"Parking Spot Visualization - Frame {self.frame_counter}")
-        ax.set_xlabel("X (m)")
-        ax.set_ylabel("Y (m)")
-        ax.legend()
-        plt.grid(True)
-        output_path = os.path.join(self.output_dir, f"frame_{self.frame_counter:04d}.png")
-        plt.savefig(output_path)
-        plt.close()
-
-
 """
 CARLA Parking Spot Detection System using Semantic LiDAR and DBSCAN Clustering
 """
@@ -88,6 +13,7 @@ import math
 import numpy as np
 from sklearn.cluster import DBSCAN
 import carla
+import matplotlib.pyplot as plt
 
 # CARLA PythonAPI setup
 try:
@@ -103,15 +29,54 @@ except IndexError:
 # ======================
 # Predefined parking spots in world coordinates (x, y)
 PARKING_SPOTS = [
-    {
-        "id": 1,
-        "polygon": [(85.0, 125.0), (90.0, 125.0), (90.0, 130.0), (85.0, 130.0)],
-        "occupied": False
+    {'id': 10, 
+     'polygon': [(1, -31), (6, -31), (6, -29), (1, -29)], 
+     'occupied': False
     },
-    {
-        "id": 2,
-        "polygon": [(95.0, 125.0), (100.0, 125.0), (100.0, 130.0), (95.0, 130.0)],
-        "occupied": False
+
+    {'id': 5, 
+      'polygon': [(8, -31), (13, -31), (13, -29), (8, -29)],
+      'occupied': False
+    }, 
+
+    {'id': 9, 
+       'polygon': [(1, -28), (6, -28), (6, -26), (1, -26)], 
+       'occupied': False
+    },
+
+    {'id': 8,
+      'polygon': [(1, -25), (6, -25), (6, -23), (1, -23)],
+      'occupied': False
+    }, 
+
+    {'id': 7,
+      'polygon': [(1, -23), (6, -23), (6, -20), (1, -20)],
+      'occupied': False
+    }, 
+
+    {'id': 6,
+     'polygon': [(1, -20), (6, -20), (6, -18), (1, -18)],
+     'occupied': False
+    }, 
+
+    {'id': 4,
+      'polygon': [(8, -28), (13, -28), (13, -26), (8, -26)],
+      'occupied': False
+    }, 
+    
+    {'id': 3, 
+     'polygon': [(8, -25), (13, -25), (13, -23), (8, -23)],
+     'occupied': False
+     },
+     
+    {'id': 2,
+      'polygon': [(8, -23), (13, -23), (13, -21), (8, -21)],
+      'occupied': False
+    }, 
+    
+    {'id': 1,
+     'polygon': [(8, -20), (13, -20), (13, -18), (8, -18)],
+     'occupied': False
     }
 ]
 
@@ -132,6 +97,8 @@ class ParkingMonitor:
         self.vehicle = vehicle      # Player-controlled vehicle
         self.lidar = None           # LiDAR sensor object
         self.debug = world.debug    # CARLA debug drawing interface
+        self.CAR_LENGTH_RANGE = (3.0, 6.0)  # min/max length in meters
+        self.CAR_WIDTH_RANGE = (1.5, 3.0)   # min/max width in meters
 
     def point_in_polygon(self, point, polygon):
         """Ray casting algorithm for point-in-polygon test"""
@@ -169,59 +136,99 @@ class ParkingMonitor:
                     points[i], points[(i+1)%len(points)],
                     thickness=0.2,    # Line thickness in meters
                     color=color,      # Color based on occupancy
-                    life_time=0.1     # Duration to keep line visible (seconds)
+                    life_time=0.5     # Duration to keep line visible (seconds)
                 )
 
-    def semantic_lidar_callback(self, point_cloud):
-        """Process LiDAR data and update parking spot status"""
-        # Get current vehicle transform for coordinate conversion
+    def semantic_lidar_callback_old(self, point_cloud):
+        """Enhanced cluster visualization with center highlighting"""
         vehicle_transform = self.vehicle.get_transform()
         obstacle_points = []
 
-        # Process each LiDAR detection point
+        # Convert points to world coordinates
         for detection in point_cloud:
-            # Filter out ground points (only keep obstacles)
             if detection.object_tag != OBJECT_IDS["Ground"]:
-                # Convert local coordinates to world space
                 local_point = detection.point
                 world_point = vehicle_transform.transform(
-                    carla.Location(local_point.x, local_point.y, local_point.z))
+                    carla.Location(local_point.x, local_point.y, local_point.z)
+                )
                 obstacle_points.append([world_point.x, world_point.y])
 
-        # Cluster obstacles using DBSCAN algorithm
+        # Improved clustering parameters for tighter groups
         centroids = []
+        cluster_radii = []
         if obstacle_points:
             X = np.array(obstacle_points)
             
-            # DBSCAN parameters (eps in meters, min_samples for cluster formation)
-            clustering = DBSCAN(eps=2.0, min_samples=100).fit(X)
-            
-            # Process detected clusters
-            for label in set(clustering.labels_):
-                if label != -1:  # Ignore noise points
-                    cluster_points = X[clustering.labels_ == label]
-                    centroid = np.mean(cluster_points, axis=0)
-                    centroids.append(centroid)
-                    
-                    # Visualize cluster centroids
-                    self.debug.draw_point(
-                        carla.Location(x=centroid[0], y=centroid[1], z=1.0),
-                        size=0.05,  # Point size in meters
-                        color=carla.Color(215, 195, 0),  # Orange color
-                        life_time=0.5  # Duration to keep point visible
-                    )
+            # Tighter clustering parameters
+            clustering = DBSCAN(eps=1.5, min_samples=100).fit(X)  # Reduced eps and min_samples
 
-        # Update parking spot occupancy status
+            for label in set(clustering.labels_):
+                if label == -1:
+                    continue  # skip noise
+
+                cluster_points = X[clustering.labels_ == label]
+                
+                # Calculate cluster center and radius
+                centroid = np.mean(cluster_points, axis=0)
+                max_distance = np.max(np.linalg.norm(cluster_points - centroid, axis=1))
+                
+                centroids.append(centroid)
+                cluster_radii.append(max_distance)
+
+                # Draw cluster center with radius
+                self.debug.draw_point(
+                    carla.Location(x=centroid[0], y=centroid[1], z=1.0),
+                    size=0.1,  # Larger point size
+                    color=carla.Color(255, 0, 0),  # Red color
+                    life_time=0.5
+                )
+                
+                # # Draw cluster boundary circle
+                # self.debug.draw_line(
+                #     carla.Location(x=centroid[0], y=centroid[1], z=1.0),
+                #     carla.Location(x=centroid[0]+max_distance, y=centroid[1], z=1.0),
+                #     thickness=0.1,
+                #     color=carla.Color(255, 165, 0),  # Orange
+                #     life_time=0.5
+                # )
+                
+                # # Add text label with coordinates
+                # self.debug.draw_string(
+                #     carla.Location(x=centroid[0], y=centroid[1], z=2.0),
+                #     f"Center: ({centroid[0]:.1f}, {centroid[1]:.1f})",
+                #     False,
+                #     carla.Color(0, 255, 255),
+                #     life_time=0.5
+                # )
+
+        # Update parking spot status with cluster proximity check
         for spot in PARKING_SPOTS:
             spot["occupied"] = False
-            for centroid in centroids:
-                if self.point_in_polygon(centroid, spot["polygon"]):
+            
+            # Existing cluster check
+            for centroid, radius in zip(centroids, cluster_radii):
+                if self.point_in_polygon(centroid, spot["polygon"]) or \
+                self.cluster_near_spot(centroid, radius, spot["polygon"]):
                     spot["occupied"] = True
-                    break  # No need to check other centroids for this spot
+                    break
 
-        # Console output of current status
+            # NEW: Check ego vehicle position
+            ego_location = self.vehicle.get_transform().location
+            ego_point = (ego_location.x, ego_location.y)
+            if self.point_in_polygon(ego_point, spot["polygon"]):
+                spot["occupied"] = True
+
+        # Debug output
         free_spots = [s["id"] for s in PARKING_SPOTS if not s["occupied"]]
-        print(f"\n[{time.strftime('%H:%M:%S')}] Free spots: {free_spots}")
+        print(f"[{time.strftime('%H:%M:%S')}] Free spots: {free_spots}")
+
+    def cluster_near_spot(self, centroid, radius, polygon):
+        """Check if cluster radius intersects with parking spot"""
+        # Create buffer around polygon
+        poly_points = np.array(polygon)
+        min_dist = np.min(np.linalg.norm(poly_points - centroid, axis=1))
+        return min_dist <= radius
+
 
     def setup_lidar(self):
         """Configure and attach semantic LiDAR sensor to vehicle"""
@@ -231,8 +238,10 @@ class ParkingMonitor:
         lidar_bp = blueprint_lib.find('sensor.lidar.ray_cast_semantic')
         lidar_bp.set_attribute('channels', '64')          # Vertical resolution
         lidar_bp.set_attribute('range', '50.0')           # Detection range in meters
-        lidar_bp.set_attribute('rotation_frequency', '20')# Scanner rotation speed (Hz)
-        lidar_bp.set_attribute('points_per_second', '100000')  # Point density
+        lidar_bp.set_attribute('rotation_frequency', '10')# Scanner rotation speed (Hz)
+        lidar_bp.set_attribute('points_per_second', '56000')  # Point density
+        lidar_bp.set_attribute('upper_fov', '10')         # Vertical field of view (degrees)
+        lidar_bp.set_attribute('lower_fov', '-30')        # Vertical field of view (degrees)
         
         # Mounting position on vehicle (center, 2.5m height)
         transform = carla.Transform(
@@ -242,7 +251,7 @@ class ParkingMonitor:
         
         # Spawn and activate LiDAR sensor
         self.lidar = self.world.spawn_actor(lidar_bp, transform, attach_to=self.vehicle)
-        self.lidar.listen(lambda data: self.semantic_lidar_callback(data))
+        self.lidar.listen(lambda data: self.semantic_lidar_callback_old(data))
 
 # ======================
 # Main Simulation Loop
@@ -259,8 +268,13 @@ def main():
         # Spawn player vehicle
         blueprint_lib = world.get_blueprint_library()
         vehicle_bp = blueprint_lib.filter('vehicle')[5]
-        spawn_point = world.get_map().get_spawn_points()[167]  # Predefined parking area
+        # spawn_point = world.get_map().get_spawn_points()[167]  # Predefined parking area
+        spawn_point = carla.Transform(carla.Location(x=11, y=-30, z=0.5), carla.Rotation(yaw=-180))
         vehicle = world.spawn_actor(vehicle_bp, spawn_point)
+        actor_list.append(vehicle)
+
+        spawn_point_new = carla.Transform(carla.Location(x=11, y=-24, z=0.5), carla.Rotation(yaw=-180))
+        vehicle = world.spawn_actor(vehicle_bp, spawn_point_new)
         actor_list.append(vehicle)
 
         # Initialize parking monitoring system
@@ -284,7 +298,7 @@ def main():
             monitor.draw_parking_spots()  # Update parking spot visuals
             follow_vehicle_camera()       # Keep camera following vehicle
             vehicle.apply_control(carla.VehicleControl(
-                throttle=0.3,  # Maintain forward motion
+                throttle=0.0,  # Maintain forward motion
                 steer=0.0      # No steering input
             ))
             time.sleep(0.1)  # Control loop frequency (~10Hz)
@@ -301,21 +315,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-
-# =============================
-# Real-Time LiDAR Callback
-# =============================
-
-# Initialize detector
-detector = ParkingSpotDetector(PARKING_SPOTS)
-
-def lidar_callback(point_cloud_data):
-    points = np.frombuffer(point_cloud_data.raw_data, dtype=np.float32).reshape(-1, 4)
-    xyz = points[:, :3]
-    updated_spots = detector.run(xyz)
-    for spot in updated_spots:
-        print(f"Spot {spot['id']} - {'OCCUPIED' if spot['occupied'] else 'FREE'}")
-
-# Attach listener to LiDAR sensor (assuming 'lidar_sensor' exists)
-lidar_sensor.listen(lambda data: lidar_callback(data))
