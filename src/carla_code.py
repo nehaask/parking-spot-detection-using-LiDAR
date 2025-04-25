@@ -298,7 +298,7 @@ def main():
             monitor.draw_parking_spots()  # Update parking spot visuals
             follow_vehicle_camera()       # Keep camera following vehicle
             vehicle.apply_control(carla.VehicleControl(
-                throttle=0.0,  # Maintain forward motion
+                throttle=0.1,  # Maintain forward motion
                 steer=0.0      # No steering input
             ))
             time.sleep(0.1)  # Control loop frequency (~10Hz)
