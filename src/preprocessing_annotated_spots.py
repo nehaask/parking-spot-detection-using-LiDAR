@@ -7,6 +7,7 @@ import csv
 from collections import defaultdict
 
 spot_points = defaultdict(list)
+MARGIN = 0.2  # Margin to add to the bounding box
 
 with open(asc_path, "r") as f:
     reader = csv.reader(f)
@@ -36,10 +37,10 @@ for spot_id, points in spot_points.items():
     ymin, ymax = min(ys), max(ys)
 
     polygon = [
-        (xmin, ymin),
-        (xmax, ymin),
-        (xmax, ymax),
-        (xmin, ymax)
+        (xmin+MARGIN, ymin+MARGIN),
+        (xmax+MARGIN, ymin+MARGIN),
+        (xmax+MARGIN, ymax+MARGIN),
+        (xmin+MARGIN, ymax+MARGIN)
     ]
 
     PARKING_SPOTS.append({
