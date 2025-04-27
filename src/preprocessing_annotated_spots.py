@@ -1,7 +1,7 @@
 import open3d as o3d
 
 # Path to your .asc file
-asc_path = "/Users/nehask/Desktop/capstone/parking-spot-detection/annotations/basemap_10_annotated.asc"
+asc_path = "annotations/basemap_10_annotated.asc"
 
 import csv
 from collections import defaultdict
