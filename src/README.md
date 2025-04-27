@@ -2,7 +2,7 @@
 
 - [scan_semantic_carla_parking_lot.py](scan_semantic_carla_parking_lot.py) 
 
-    Code to run autopilot run a Semantic LiDAR around a block that has the parking lot. Autopilotruns for 55 seconds and generates the main basemap.pcd
+    Code to run autopilot run a Semantic LiDAR around a block that has the parking lot. Autopilot runs for 55 seconds and generates the main basemap.pcd
 
 - [preprocessing_annotated_spots.py](preprocessing_annotated_spots.py)
 
@@ -28,6 +28,19 @@
 - [clustering.py](clustering.py)
 
     DBSCAN Clustering on the annotated spaces - Displays visualisation of the parking lot
+
+
+
+## order to run files 
+
+1) data collector - collects pointwise pcd from carla; reading pointwise point clouds and accumulating as single pcds
+
+2) extracting_annotated.py - gets pcd of just the annotated spacesfrom the full basemap; filters ground points
+
+3) clustering - returns clusters given the accumulated files
+
+carla_code - overlay on carla
+
 
 
 
