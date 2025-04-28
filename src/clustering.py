@@ -48,7 +48,7 @@ def run_dbscan_and_visualize(
     save_clustered=True,
     output_dir="clustered_outputs",
   # ✅ Correct default string
-    downsample_voxel=0.1,
+    downsample_voxel=0.3,
     visualize=False
 ):
     """
@@ -116,7 +116,7 @@ def run_dbscan_and_visualize(
 
 if __name__ == "__main__":
     # Example: manual run
-    PCD_FILE = "/path/to/filtered_basemap_0010.pcd"
+    PCD_FILE = "filtered_outputs/filtered_basemap_0030.pcd"
     clustered_dir = "clustered_outputs"
     run_dbscan_and_visualize(
         input_pcd_file=PCD_FILE,

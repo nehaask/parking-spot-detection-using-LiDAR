@@ -106,4 +106,9 @@ def extract_blocks_from_pcd(pcd_path, polygons, output_path, z_min=-5, z_max=5):
     print(f"Filtered PCD saved to: {output_path}")
 
 # Example usage
-extract_blocks_from_pcd("/home/nk4349/Desktop/Carla/PythonAPI/examples/parking-spot-detection/src/outputs/basemap_30.pcd", spots, "filtered_basemap_new.pcd", z_min=-2, z_max=2)
+extract_blocks_from_pcd(
+    "",
+    spots, 
+    "",
+    z_min=-2, z_max=2
+)

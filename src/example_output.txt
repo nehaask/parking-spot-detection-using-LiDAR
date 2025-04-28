@@ -1,93 +1,93 @@
-Filtered PCD saved to: filtered_basemap_new.pcd
+Filtered PCD saved to: 
 
 🔵 Saving accumulated basemap for frames 1 to 10
 ✅ Basemap saved: accumulated_outputs/basemap_0010.pcd
 Filtered PCD saved to: filtered_outputs/filtered_basemap_0010.pcd
 Running DBSCAN on filtered_outputs/filtered_basemap_0010.pcd with 25631 points.
-Downsampled point cloud to (2207, 3)
+Downsampled point cloud to (435, 3)
 Estimated number of clusters: 3
 ✅ Clustered PCD saved to: clustered_outputs/clustered_filtered_basemap_0010.pcd
-🕒 Batch 1 processed in 1.91 seconds.
+🕒 Batch 1 processed in 0.76 seconds.
 
 🔵 Saving accumulated basemap for frames 11 to 20
 ✅ Basemap saved: accumulated_outputs/basemap_0020.pcd
 Filtered PCD saved to: filtered_outputs/filtered_basemap_0020.pcd
 Running DBSCAN on filtered_outputs/filtered_basemap_0020.pcd with 27579 points.
-Downsampled point cloud to (2500, 3)
+Downsampled point cloud to (423, 3)
 Estimated number of clusters: 3
 ✅ Clustered PCD saved to: clustered_outputs/clustered_filtered_basemap_0020.pcd
-🕒 Batch 2 processed in 2.24 seconds.
+🕒 Batch 2 processed in 0.89 seconds.
 
 🔵 Saving accumulated basemap for frames 21 to 30
 ✅ Basemap saved: accumulated_outputs/basemap_0030.pcd
 Filtered PCD saved to: filtered_outputs/filtered_basemap_0030.pcd
 Running DBSCAN on filtered_outputs/filtered_basemap_0030.pcd with 33287 points.
-Downsampled point cloud to (2827, 3)
+Downsampled point cloud to (466, 3)
 Estimated number of clusters: 3
 ✅ Clustered PCD saved to: clustered_outputs/clustered_filtered_basemap_0030.pcd
-🕒 Batch 3 processed in 2.99 seconds.
+🕒 Batch 3 processed in 1.35 seconds.
 
 🔵 Saving accumulated basemap for frames 31 to 40
 ✅ Basemap saved: accumulated_outputs/basemap_0040.pcd
 Filtered PCD saved to: filtered_outputs/filtered_basemap_0040.pcd
 Running DBSCAN on filtered_outputs/filtered_basemap_0040.pcd with 34628 points.
-Downsampled point cloud to (2306, 3)
+Downsampled point cloud to (389, 3)
 Estimated number of clusters: 3
 ✅ Clustered PCD saved to: clustered_outputs/clustered_filtered_basemap_0040.pcd
-🕒 Batch 4 processed in 3.27 seconds.
+🕒 Batch 4 processed in 1.53 seconds.
 
 🔵 Saving accumulated basemap for frames 41 to 50
 ✅ Basemap saved: accumulated_outputs/basemap_0050.pcd
 Filtered PCD saved to: filtered_outputs/filtered_basemap_0050.pcd
 Running DBSCAN on filtered_outputs/filtered_basemap_0050.pcd with 27114 points.
-Downsampled point cloud to (1464, 3)
+Downsampled point cloud to (249, 3)
 Estimated number of clusters: 3
 ✅ Clustered PCD saved to: clustered_outputs/clustered_filtered_basemap_0050.pcd
-🕒 Batch 5 processed in 2.29 seconds.
+🕒 Batch 5 processed in 1.05 seconds.
 
 🔵 Saving accumulated basemap for frames 51 to 60
 ✅ Basemap saved: accumulated_outputs/basemap_0060.pcd
 Filtered PCD saved to: filtered_outputs/filtered_basemap_0060.pcd
 Running DBSCAN on filtered_outputs/filtered_basemap_0060.pcd with 18306 points.
-Downsampled point cloud to (1116, 3)
+Downsampled point cloud to (203, 3)
 Estimated number of clusters: 3
 ✅ Clustered PCD saved to: clustered_outputs/clustered_filtered_basemap_0060.pcd
-🕒 Batch 6 processed in 1.13 seconds.
+🕒 Batch 6 processed in 0.60 seconds.
 
 🔵 Saving accumulated basemap for frames 61 to 70
 ✅ Basemap saved: accumulated_outputs/basemap_0070.pcd
 Filtered PCD saved to: filtered_outputs/filtered_basemap_0070.pcd
 Running DBSCAN on filtered_outputs/filtered_basemap_0070.pcd with 18779 points.
-Downsampled point cloud to (1260, 3)
+Downsampled point cloud to (231, 3)
 Estimated number of clusters: 3
 ✅ Clustered PCD saved to: clustered_outputs/clustered_filtered_basemap_0070.pcd
-🕒 Batch 7 processed in 1.27 seconds.
+🕒 Batch 7 processed in 0.72 seconds.
 
 🔵 Saving accumulated basemap for frames 71 to 80
 ✅ Basemap saved: accumulated_outputs/basemap_0080.pcd
 Filtered PCD saved to: filtered_outputs/filtered_basemap_0080.pcd
 Running DBSCAN on filtered_outputs/filtered_basemap_0080.pcd with 22011 points.
-Downsampled point cloud to (1636, 3)
+Downsampled point cloud to (271, 3)
 Estimated number of clusters: 3
 ✅ Clustered PCD saved to: clustered_outputs/clustered_filtered_basemap_0080.pcd
-🕒 Batch 8 processed in 1.67 seconds.
+🕒 Batch 8 processed in 0.81 seconds.
 
 🔵 Saving accumulated basemap for frames 81 to 90
 ✅ Basemap saved: accumulated_outputs/basemap_0090.pcd
 Filtered PCD saved to: filtered_outputs/filtered_basemap_0090.pcd
 Running DBSCAN on filtered_outputs/filtered_basemap_0090.pcd with 17460 points.
-Downsampled point cloud to (1606, 3)
+Downsampled point cloud to (275, 3)
 Estimated number of clusters: 3
 ✅ Clustered PCD saved to: clustered_outputs/clustered_filtered_basemap_0090.pcd
-🕒 Batch 9 processed in 1.17 seconds.
+🕒 Batch 9 processed in 0.55 seconds.
 
 🔵 Saving accumulated basemap for frames 91 to 100
 ✅ Basemap saved: accumulated_outputs/basemap_0100.pcd
 Filtered PCD saved to: filtered_outputs/filtered_basemap_0100.pcd
 Running DBSCAN on filtered_outputs/filtered_basemap_0100.pcd with 17198 points.
-Downsampled point cloud to (575, 3)
+Downsampled point cloud to (181, 3)
 Estimated number of clusters: 3
 ✅ Clustered PCD saved to: clustered_outputs/clustered_filtered_basemap_0100.pcd
-🕒 Batch 10 processed in 1.02 seconds.
+🕒 Batch 10 processed in 0.47 seconds.
 
-🏁 All batches completed in 24.13 seconds.
+🏁 All batches completed in 10.59 seconds.
