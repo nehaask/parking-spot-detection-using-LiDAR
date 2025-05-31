@@ -17,6 +17,13 @@ spots = [
     {'id': 6,  'polygon': [(1.2, -19.8), (6.2, -19.8), (6.2, -17.8), (1.2, -17.8)], 'occupied': False},
     {'id': 1,  'polygon': [(8.2, -19.8), (13.2, -19.8), (13.2, -17.8), (8.2, -17.8)], 'occupied': False}
 ]
+def calculate_spot_centers(spots):
+    centers = []
+    for spot in spots:
+        corners = np.array(spot)
+        center = np.mean(corners, axis=0)
+        centers.append(center)
+    return np.array(centers)
 
 def create_bbox_lineset(bounds, color=(0, 1, 0)):
     x_min, x_max, y_min, y_max, z_min, z_max = bounds
