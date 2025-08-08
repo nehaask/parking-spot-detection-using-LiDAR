@@ -29,14 +29,15 @@
 
     DBSCAN Clustering on the annotated spaces - Displays visualisation of the parking lot
 
-![alt text](image.png)
+![alt text](roadmap.png)
 
 ## order to run files 
 
-1) data collector - collects pointwise pcd from carla; reading pointwise point clouds and accumulating as single pcds
+1) 1_collect_data.py - Collect individual frame data from CARLA simulation 
 
-2) extracting_annotated.py - gets pcd of just the annotated spacesfrom the full basemap; filters ground points
+CARLA Simulation → Semantic LiDAR → Coordinate Transformation → PCD File Storage
 
-3) clustering - returns clusters given the accumulated files
+2) 2_accumulate.py - Process frames through complete pipeline (accumulation + analysis)
 
+Individual Frames → Batch Accumulation → Basemap Generation → Space Filtering → Clustering Analysis → Results
 
