@@ -29,7 +29,7 @@
 
     DBSCAN Clustering on the annotated spaces - Displays visualisation of the parking lot
 
-
+![alt text](image.png)
 
 ## order to run files 
 
@@ -38,11 +38,5 @@
 2) extracting_annotated.py - gets pcd of just the annotated spacesfrom the full basemap; filters ground points
 
 3) clustering - returns clusters given the accumulated files
-
-carla_code - overlay on carla
-
-
-
-
 
 
